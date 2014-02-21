@@ -20,7 +20,7 @@
     "include-path": [
         "./"
     ],
-    "license": "BSD Style",
+    "license": "BSD-2-Clause",
     "name": "pear/mail_mime-decode",
     "support": {
         "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Mail_mimeDecode",
@@ -32,5 +32,6 @@
     },
     "require-dev": {
         "phpunit/phpunit": "*"
-    }
+    },
+    "minimum-stability": "dev"
 }
