@@ -306,7 +306,7 @@ class Mail_mimeDecode extends PEAR{
 	function _splitBodyHeader($input)
 	{
 
-		$pos = strpos($input, $this->_crlf);
+		$pos = strpos($input, $this->_crlf . $this->_crlf);
 		if ($pos === false) {
 			$this->_error = 'Could not split header and body';
 			return false;
