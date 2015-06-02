@@ -1,3 +1,6 @@
+# NOTE
+This library is quite old and was being used by our software. We are no longer using it, and thus, no longer maintaining this repository. It will be removed later this year (Q4 2015). Please find an alternate source or fork your own copy. Thanks!
+
 ## Mail_mimeDecode v1.5.5.2
 
 This is a [Packagist](https://packagist.org) repository for loading Mail_mimeDecode via [Composer](https://getcomposer.org).
