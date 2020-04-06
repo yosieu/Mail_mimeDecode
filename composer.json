@@ -9,6 +9,11 @@
 			"email": "alec@php.net",
 			"name":  "Aleksander Machniak",
 			"role":  "Lead"
+		},
+		{
+			"email": "sima@yosi.eu",
+			"name":  "Josef Šíma",
+			"role":  "Lead"
 		}
 	],
 	"autoload":          {
@@ -21,7 +26,7 @@
 		"./"
 	],
 	"license":           "BSD-2-Clause",
-	"name":              "pear/mail_mime-decode",
+	"name":              "yosieu/mail_mime-decode",
 	"support":           {
 		"issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Mail_mimeDecode",
 		"source": "https://github.com/dreamfactorysoftware/Mail_mimeDecode"
