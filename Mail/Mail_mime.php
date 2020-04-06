@@ -21,11 +21,11 @@
 //
 // $Id$
 
-namespace Yosieu\Mail_mimeDecode;
+namespace Yosieu\MailMimeDecode;
 
-require_once 'PEAR.php';
+// require_once 'PEAR.php';
 
-require_once 'Mail/mimePart.php';
+use PEAR;
 
 /*
 * Mime mail composer class. Can handle: text and html bodies, embedded html
@@ -69,22 +69,22 @@ class Mail_mime extends Mail
     * list of the attached images
     * @var array
     */
-    public string $_html_images = array();
+    public array $_html_images = [];
     /**
     * list of the attachements
     * @var array
     */
-    public array $_parts = array();
+    public array $_parts = [];
     /**
     * Build parameters
     * @var array
     */
-    public array $_build_params = array();
+    public array $_build_params = [];
     /**
     * Headers for the mail
     * @var array
     */
-    public array $_headers = array();
+    public array $_headers = [];
 
 
     /**

@@ -16,9 +16,9 @@
 			"role":  "Lead"
 		}
 	],
-	"autoload":          {
-		"psr-0": {
-			"Mail_mimeDecode": ""
+	"autoload": {
+		"psr-4": {
+			"Yosieu\\MailMimeDecode\\": ["Mail"]
 		}
 	},
 	"description":       "More info available on: http://pear.php.net/package/Mail_mimeDecode",

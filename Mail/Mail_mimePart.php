@@ -15,9 +15,11 @@
 // +----------------------------------------------------------------------+
 // | Authors: Richard Heyes <richard@phpguru.org>                         |
 // +----------------------------------------------------------------------+
-namespace Yosieu\Mail_mimeDecode;
+namespace Yosieu\MailMimeDecode;
 
-require_once('PEAR.php');
+//require_once('PEAR.php');
+
+use PEAR;
 
 /**
 *

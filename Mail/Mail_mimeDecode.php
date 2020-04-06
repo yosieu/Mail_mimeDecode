@@ -15,9 +15,11 @@
 // +----------------------------------------------------------------------+
 // | Authors: Richard Heyes <richard@phpguru.org>                         |
 // +----------------------------------------------------------------------+
-namespace Yosieu\Mail_mimeDecode;
+namespace Yosieu\MailMimeDecode;
 
-require_once('PEAR.php');
+//require_once('PEAR.php');
+
+use PEAR;
 
 /**
 *  +----------------------------- IMPORTANT ------------------------------+
@@ -59,50 +61,50 @@ class Mail_mimeDecode extends PEAR {
 	 * The raw email to decode
 	 * @var    string
 	 */
-	var $_input;
+	public string $_input;
 
 	/**
 	 * The header part of the input
 	 * @var    string
 	 */
-	var $_header;
+    public string $_header;
 
 	/**
 	 * The body part of the input
 	 * @var    string
 	 */
-	var $_body;
+    public string $_body;
 
 	/**
 	 * If an error occurs, this is used to store the message
 	 * @var    string
 	 */
-	var $_error;
+    public string $_error;
 
 	/**
 	 * Flag to determine whether to include bodies in the
 	 * returned object.
-	 * @var    boolean
+	 * @var    bool
 	 */
-	var $_include_bodies;
+    public bool $_include_bodies;
 
 	/**
 	 * Flag to determine whether to decode bodies
-	 * @var    boolean
+	 * @var    bool
 	 */
-	var $_decode_bodies;
+    public bool $_decode_bodies;
 
 	/**
 	 * Flag to determine whether to decode headers
-	 * @var    boolean
+	 * @var    bool
 	 */
-	var $_decode_headers;
+    public bool $_decode_headers;
 
 	/**
 	 * Variable to hold the line end type.
 	 * @var    string
 	 */
-	var $_crlf;
+    public string $_crlf;
 
 	/**
 	 * Constructor.
@@ -147,7 +149,7 @@ class Mail_mimeDecode extends PEAR {
 	 * @return object Decoded results
 	 * @access public
 	 */
-	public function decode($params = null)
+	public function decode($params = null) : object
 	{
 		// Have we been called statically? If so, create an object and pass details to that.
 		if (!isset($this) AND isset($params['input'])) {
@@ -186,7 +188,7 @@ class Mail_mimeDecode extends PEAR {
 	 * @return object Results of decoding process
 	 * @access private
 	 */
-	private function _decode($headers, $body, $default_ctype = 'text/plain')
+	private function _decode($headers, $body, $default_ctype = 'text/plain') : object
 	{
 		$return = new stdClass;
 		$headers = $this->_parseHeaders($headers);
