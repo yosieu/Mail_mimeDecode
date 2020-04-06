@@ -15,8 +15,9 @@
 // +----------------------------------------------------------------------+
 // | Authors: Richard Heyes <richard@phpguru.org>                         |
 // +----------------------------------------------------------------------+
+namespace Yosieu\Mail_mimeDecode;
 
-    require_once('PEAR.php');
+require_once('PEAR.php');
 
 /**
 *
@@ -124,7 +125,7 @@ class Mail_mimePart extends PEAR{
      *                  description  - Content description
      * @access public
      */
-    function Mail_mimePart($body, $params = array())
+    public function __construct($body, $params = array())
     {
         if (!defined('MAIL_MIMEPART_CRLF')) {
             define('MAIL_MIMEPART_CRLF', "\r\n", TRUE);
@@ -193,7 +194,7 @@ class Mail_mimePart extends PEAR{
      *         an indexed array.
      * @access public
      */
-    function encode()
+    public function encode()
     {
         $encoded =& $this->_encoded;
 
@@ -241,7 +242,7 @@ class Mail_mimePart extends PEAR{
      *         otherwise you will not be able to add further subparts.
      * @access public
      */
-    function &addSubPart($body, $params)
+    public function &addSubPart($body, $params)
     {
         $this->_subparts[] = new Mail_mimePart($body, $params);
         return $this->_subparts[count($this->_subparts) - 1];
@@ -257,7 +258,7 @@ class Mail_mimePart extends PEAR{
      *                  or quoted-printable.
      * @access private
      */
-    function _getEncodedData($data, $encoding)
+    private function _getEncodedData($data, $encoding)
     {
         switch ($encoding) {
             case '7bit':
@@ -285,7 +286,7 @@ class Mail_mimePart extends PEAR{
      *
      * @access private
      */
-    function _quotedPrintableEncode($input , $line_max = 76)
+    private function _quotedPrintableEncode($input , $line_max = 76)
     {
         $lines    = preg_split("/\r\n|\r|\n/", $input);
         $eol    = MAIL_MIMEPART_CRLF;

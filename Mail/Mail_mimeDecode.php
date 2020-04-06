@@ -15,8 +15,9 @@
 // +----------------------------------------------------------------------+
 // | Authors: Richard Heyes <richard@phpguru.org>                         |
 // +----------------------------------------------------------------------+
+namespace Yosieu\Mail_mimeDecode;
 
-	require_once('PEAR.php');
+require_once('PEAR.php');
 
 /**
 *  +----------------------------- IMPORTANT ------------------------------+
@@ -52,7 +53,7 @@
 * @package Mail
 */
 
-class Mail_mimeDecode extends PEAR{
+class Mail_mimeDecode extends PEAR {
 
 	/**
 	 * The raw email to decode
@@ -113,7 +114,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @param string CRLF type to use (CRLF/LF/CR)
 	 * @access public
 	 */
-	function Mail_mimeDecode($input, $crlf = "\r\n")
+	public function __construct($input, $crlf = "\r\n")
 	{
 
 		$this->_crlf = $crlf;
@@ -146,7 +147,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return object Decoded results
 	 * @access public
 	 */
-	function decode($params = null)
+	public function decode($params = null)
 	{
 		// Have we been called statically? If so, create an object and pass details to that.
 		if (!isset($this) AND isset($params['input'])) {
@@ -185,7 +186,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return object Results of decoding process
 	 * @access private
 	 */
-	function _decode($headers, $body, $default_ctype = 'text/plain')
+	private function _decode($headers, $body, $default_ctype = 'text/plain')
 	{
 		$return = new stdClass;
 		$headers = $this->_parseHeaders($headers);
@@ -303,7 +304,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return array Contains header and body section
 	 * @access private
 	 */
-	function _splitBodyHeader($input)
+	private function _splitBodyHeader($input)
 	{
 
 		$pos = strpos($input, $this->_crlf . $this->_crlf);
@@ -325,7 +326,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return array Contains parsed headers
 	 * @access private
 	 */
-	function _parseHeaders($input)
+	private function _parseHeaders($input)
 	{
 
 		if ($input !== '') {
@@ -362,7 +363,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return array Contains parsed result
 	 * @access private
 	 */
-	function _parseHeaderValue($input)
+	private function _parseHeaderValue($input)
 	{
 
 		if (($pos = strpos($input, ';')) !== false) {
@@ -391,7 +392,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return array Contains array of resulting mime parts
 	 * @access private
 	 */
-	function _boundarySplit($input, $boundary)
+	private function _boundarySplit($input, $boundary)
 	{
 		$tmp = explode('--'.$boundary, $input);
 
@@ -412,7 +413,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return string Decoded header value
 	 * @access private
 	 */
-	function _decodeHeader($input)
+	private function _decodeHeader($input)
 	{
 		// Remove white space between encoded-words
 		$input = preg_replace('/(=\?[^?]+\?(Q|B)\?[^?]*\?=)( |' . "\t|" . $this->_crlf . ')+=\?/', '\1=?', $input);
@@ -453,7 +454,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return string Decoded body
 	 * @access private
 	 */
-	function _decodeBody($input, $encoding = '7bit')
+	private function _decodeBody($input, $encoding = '7bit')
 	{
 		switch ($encoding) {
 			case '7bit':
@@ -481,7 +482,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return string Decoded body
 	 * @access private
 	 */
-	function _quotedPrintableDecode($input)
+	private function _quotedPrintableDecode($input)
 	{
 		// Remove soft line breaks
 		$input = preg_replace("/=\r?\n/", '', $input);
@@ -512,7 +513,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @access public
 	 * @author Unknown
 	 */
-	function &uudecode($input)
+	public function &uudecode($input)
 	{
 		// Find all uuencoded sections
 		preg_match_all("/begin ([0-7]{3}) (.+)\r?\n(.+)\r?\nend/Us", $input, $matches);
@@ -589,7 +590,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return string XML version of input
 	 * @access public
 	 */
-	function getXML($input)
+	public function getXML($input)
 	{
 		$crlf    =  "\r\n";
 		$output  = '<?xml version=\'1.0\'?>' . $crlf .
@@ -611,7 +612,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return string  XML version of input
 	 * @access private
 	 */
-	function _getXML($input, $indent = 1)
+	private function _getXML($input, $indent = 1)
 	{
 		$htab    =  "\t";
 		$crlf    =  "\r\n";
@@ -655,7 +656,7 @@ class Mail_mimeDecode extends PEAR{
 	 * @return string  XML version of input
 	 * @access private
 	 */
-	function _getXML_helper($hdr_name, $hdr_value, $indent)
+	private function _getXML_helper($hdr_name, $hdr_value, $indent)
 	{
 		$htab   = "\t";
 		$crlf   = "\r\n";
@@ -688,4 +689,3 @@ class Mail_mimeDecode extends PEAR{
 	}    
 
 } // End of class
-?>

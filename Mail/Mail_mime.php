@@ -1,7 +1,7 @@
 <?php
 //
 // +----------------------------------------------------------------------+
-// | PHP version 4.0                                                      |
+// | PHP version 7.4                                                     |
 // +----------------------------------------------------------------------+
 // | Copyright (c) 1997-2001 The PHP Group                                |
 // +----------------------------------------------------------------------+
@@ -15,12 +15,16 @@
 // +----------------------------------------------------------------------+
 // | Authors: Tomas V.V.Cox <cox@idecnet.com>                             |
 // |          Richard Heyes <richard@phpguru.org>                         |
+// |          Josef Šíma <sima@yosi.eu>                                   |
 // |                                                                      |
 // +----------------------------------------------------------------------+
 //
 // $Id$
 
+namespace Yosieu\Mail_mimeDecode;
+
 require_once 'PEAR.php';
+
 require_once 'Mail/mimePart.php';
 
 /*
@@ -45,50 +49,50 @@ class Mail_mime extends Mail
     * Contains the plain text part of the email
     * @var string
     */
-    var $_txtbody;
+    public string $_txtbody;
     /**
     * Contains the html part of the email
     * @var string
     */
-    var $_htmlbody;
+    public string $_htmlbody;
     /**
     * contains the mime encoded text
     * @var string
     */
-    var $_mime;
+    public string $_mime;
     /**
     * contains the multipart content
     * @var string
     */
-    var $_multipart;
+    public string $_multipart;
     /**
     * list of the attached images
     * @var array
     */
-    var $_html_images = array();
+    public string $_html_images = array();
     /**
     * list of the attachements
     * @var array
     */
-    var $_parts = array();
+    public array $_parts = array();
     /**
     * Build parameters
     * @var array
     */
-    var $_build_params = array();
+    public array $_build_params = array();
     /**
     * Headers for the mail
     * @var array
     */
-    var $_headers = array();
+    public array $_headers = array();
 
 
-    /*
-    * Constructor function
-    *
-    * @access public
-    */
-    function Mail_mime($crlf = "\r\n")
+    /**
+     * Mail_mime constructor.
+     * @param string $crlf
+     * @access public
+     */
+    public function __construct($crlf = "\r\n")
     {
         if (!defined('MAIL_MIME_CRLF')) {
             define('MAIL_MIME_CRLF', $crlf, true);
@@ -118,7 +122,7 @@ class Mail_mime extends Mail
     * @return mixed true on success or PEAR_Error object
     * @access public
     */
-    function setTXTBody($data, $isfile = false)
+    public function setTXTBody($data, $isfile = false)
     {
         if (!$isfile) {
             $this->_txtbody = $data;
@@ -142,7 +146,7 @@ class Mail_mime extends Mail
     * @return mixed true on success or PEAR_Error object
     * @access public
     */
-    function setHTMLBody($data, $isfile = false)
+    public function setHTMLBody($data, $isfile = false)
     {
         if (!$isfile) {
             $this->_htmlbody = $data;
@@ -167,7 +171,7 @@ class Mail_mime extends Mail
     * @return mixed true on success or PEAR_Error object
     * @access public
     */
-    function addHTMLImage($file, $c_type='application/octet-stream', $name = '', $isfilename = true)
+    public function addHTMLImage($file, $c_type='application/octet-stream', $name = '', $isfilename = true)
     {
         $filedata = ($isfilename === true) ? $this->_file2str($file) : $file;
         $filename = ($isfilename === true) ? basename($file) : basename($name);
@@ -193,7 +197,7 @@ class Mail_mime extends Mail
     * @return mixed true on success or PEAR_Error object
     * @access public
     */
-    function addAttachment($file, $c_type='application/octet-stream', $name = '', $isfilename = true, $encoding = 'base64')
+    public function addAttachment($file, $c_type='application/octet-stream', $name = '', $isfilename = true, $encoding = 'base64')
     {
         $filedata = ($isfilename === true) ? $this->_file2str($file) : $file;
         $filename = ($isfilename === true) ? basename($file) : basename($name);
@@ -210,182 +214,34 @@ class Mail_mime extends Mail
         return true;
     }
 
-    /*
-    * Returns the contents of the given file name as string
-    * @param string $file_name
-    * @return string
-    * @acces private
-    */
-    function & _file2str($file_name)
+
+    /**
+     * Builds the multipart message from the list ($this->_parts) and
+     * returns the mime content.
+     *
+     * @param  array $build_params
+     *                Build parameters that change the way the email
+     *                is built. Should be associative. Can contain:
+     *                text_encoding  -  What encoding to use for plain text
+     *                                  Default is 7bit
+     *                html_encoding  -  What encoding to use for html
+     *                                  Default is quoted-printable
+     *                7bit_wrap      -  Number of characters before text is
+     *                                  wrapped in 7bit encoding
+     *                                  Default is 998
+     *                html_charset   -  The character set to use for html.
+     *                                  Default is iso-8859-1
+     *                text_charset   -  The character set to use for text.
+     *                                  Default is iso-8859-1
+     *
+     * @return string|null
+     * @access public
+     *
+     */
+
+    public function get(array $build_params = []) : ?string
     {
-        if (!is_readable($file_name)) {
-            return $this->raiseError('File is not readable ' . $file_name);
-        }
-        if (!$fd = fopen($file_name, 'rb')) {
-            return $this->raiseError('Could not open ' . $file_name);
-        }
-        $cont = fread($fd, filesize($file_name));
-        fclose($fd);
-        return $cont;
-    }
-
-    /*
-    * Adds a text subpart to the mimePart object and 
-    * returns it during the build process.
-    *
-    * @param mixed    The object to add the part to, or
-    *                 null if a new object is to be created.
-    * @param string   The text to add.
-    * @return object  The text mimePart object
-    * @access private
-    */
-    function &_addTextPart(&$obj, $text){
-
-        $params['content_type'] = 'text/plain';
-        $params['encoding']     = $this->_build_params['text_encoding'];
-        $params['charset']      = $this->_build_params['text_charset'];
-        if (is_object($obj)) {
-            return $obj->addSubpart($text, $params);
-        } else {
-            return new Mail_mimePart($text, $params);
-        }
-    }
-
-    /*
-    * Adds a html subpart to the mimePart object and
-    * returns it during the build process.
-    *
-    * @param mixed    The object to add the part to, or
-    *                 null if a new object is to be created.
-    * @return object  The html mimePart object
-    * @access private
-    */
-    function &_addHtmlPart(&$obj){
-
-        $params['content_type'] = 'text/html';
-        $params['encoding']     = $this->_build_params['html_encoding'];
-        $params['charset']      = $this->_build_params['html_charset'];
-        if (is_object($obj)) {
-            return $obj->addSubpart($this->_htmlbody, $params);
-        } else {
-            return new Mail_mimePart($this->_htmlbody, $params);
-        }
-    }
-
-    /*
-    * Creates a new mimePart object, using multipart/mixed as
-    * the initial content-type and returns it during the
-    * build process.
-    *
-    * @return object  The multipart/mixed mimePart object
-    * @access private
-    */
-    function &_addMixedPart(){
-
-        $params['content_type'] = 'multipart/mixed';
-        return new Mail_mimePart('', $params);
-    }
-
-    /*
-    * Adds a multipart/alternative part to a mimePart
-    * object, (or creates one), and returns it  during
-    * the build process.
-    *
-    * @param mixed    The object to add the part to, or
-    *                 null if a new object is to be created.
-    * @return object  The multipart/mixed mimePart object
-    * @access private
-    */
-    function &_addAlternativePart(&$obj){
-
-        $params['content_type'] = 'multipart/alternative';
-        if (is_object($obj)) {
-            return $obj->addSubpart('', $params);
-        } else {
-            return new Mail_mimePart('', $params);
-        }
-    }
-
-    /*
-    * Adds a multipart/related part to a mimePart
-    * object, (or creates one), and returns it  during
-    * the build process.
-    *
-    * @param mixed    The object to add the part to, or
-    *                 null if a new object is to be created.
-    * @return object  The multipart/mixed mimePart object
-    * @access private
-    */
-    function &_addRelatedPart(&$obj){
-
-        $params['content_type'] = 'multipart/related';
-        if (is_object($obj)) {
-            return $obj->addSubpart('', $params);
-        } else {
-            return new Mail_mimePart('', $params);
-        }
-    }
-
-    /*
-    * Adds an html image subpart to a mimePart object
-    * and returns it during the build process.
-    *
-    * @param  object  The mimePart to add the image to
-    * @param  array   The image information
-    * @return object  The image mimePart object
-    * @access private
-    */
-    function &_addHtmlImagePart(&$obj, $value){
-
-        $params['content_type'] = $value['c_type'];
-        $params['encoding']     = 'base64';
-        $params['disposition']  = 'inline';
-        $params['dfilename']    = $value['name'];
-        $params['cid']          = $value['cid'];
-        $obj->addSubpart($value['body'], $params);
-    }
-
-    /*
-    * Adds an attachment subpart to a mimePart object
-    * and returns it during the build process.
-    *
-    * @param  object  The mimePart to add the image to
-    * @param  array   The attachment information
-    * @return object  The image mimePart object
-    * @access private
-    */
-    function &_addAttachmentPart(&$obj, $value){
-
-        $params['content_type'] = $value['c_type'];
-        $params['encoding']     = $value['encoding'];
-        $params['disposition']  = 'attachment';
-        $params['dfilename']    = $value['name'];
-        $obj->addSubpart($value['body'], $params);
-    }
-
-    /*
-    * Builds the multipart message from the list ($this->_parts) and
-    * returns the mime content.
-    *
-    * @param  array  Build parameters that change the way the email
-    *                is built. Should be associative. Can contain:
-    *                text_encoding  -  What encoding to use for plain text
-    *                                  Default is 7bit
-    *                html_encoding  -  What encoding to use for html
-    *                                  Default is quoted-printable
-    *                7bit_wrap      -  Number of characters before text is
-    *                                  wrapped in 7bit encoding
-    *                                  Default is 998
-    *                html_charset   -  The character set to use for html.
-    *                                  Default is iso-8859-1
-    *                text_charset   -  The character set to use for text.
-    *                                  Default is iso-8859-1
-    * @return string The mime content
-    * @access public
-    */
-    function &get($params = null)
-    {
-        if (isset($build_params)) {
+        if (!empty($build_params)) {
             while (list($key, $value) = each($build_params)) {
                 $this->_build_params[$key] = $value;
             }
@@ -428,9 +284,9 @@ class Mail_mime extends Mail
             case $html AND !$attachments AND !$html_images:
                 if (isset($this->_txtbody)) {
                     $message =& $this->_addAlternativePart($null);
-   	                $this->_addTextPart($message, $this->_txtbody);
-					$this->_addHtmlPart($message);
-                    
+                    $this->_addTextPart($message, $this->_txtbody);
+                    $this->_addHtmlPart($message);
+
                 } else {
                     $message =& $this->_addHtmlPart($null);
                 }
@@ -443,7 +299,7 @@ class Mail_mime extends Mail
                     $related =& $this->_addRelatedPart($message);
                 } else {
                     $message =& $this->_addRelatedPart($null);
-					$related =& $message;
+                    $related =& $message;
                 }
                 $this->_addHtmlPart($related);
                 for ($i = 0; $i < count($this->_html_images); $i++) {
@@ -492,31 +348,187 @@ class Mail_mime extends Mail
             return $output['body'];
 
         } else {
-            return FALSE;
+            return null;
         }
     }
 
 
-    /*
-    * Returns an array with the headers needed to prepend to the email
-    * (MIME-Version and Content-Type). Format of argument is:
-    * $array['header-name'] = 'header-value';
-    *
-    * @param  array Assoc array with any extra headers. Optional.
-    * @return array Assoc array with the mime headers
-    * @access public
-    */
-    function & headers($xtra_headers = null)
+    /**
+     * Returns an array with the headers needed to prepend to the email
+     * (MIME-Version and Content-Type). Format of argument is:
+     * $array['header-name'] = 'header-value';
+     *
+     * @param array $xtra_headers Assoc array with any extra headers. Optional
+     * @return array Assoc array with the mime headers
+     * @access public
+     */
+    public function headers(array $xtra_headers = []) : array
     {
-        // Content-Type header should already be present, 
+        // Content-Type header should already be present,
         // So just add mime version header
         $headers['MIME-Version'] = '1.0';
-        if (isset($xtra_headers)) {
+        if (!empty($xtra_headers)) {
             $headers = array_merge($headers, $xtra_headers);
         }
         $this->_headers = array_merge($headers, $this->_headers);
 
         return $this->_headers;
     }
+
+
+    /**
+     * Returns the contents of the given file name as string
+     *
+     * @param string $file_name
+     * @return string
+     * @acces private
+     */
+    private function _file2str(string $file_name) : string
+    {
+        if (!is_readable($file_name)) {
+            return $this->raiseError('File is not readable ' . $file_name);
+        }
+        if (!$fd = fopen($file_name, 'rb')) {
+            return $this->raiseError('Could not open ' . $file_name);
+        }
+        $cont = fread($fd, filesize($file_name));
+        fclose($fd);
+        return $cont;
+    }
+
+    /*
+    * Adds a text subpart to the mimePart object and 
+    * returns it during the build process.
+    *
+    * @param mixed    The object to add the part to, or
+    *                 null if a new object is to be created.
+    * @param string   The text to add.
+    * @return object  The text mimePart object
+    * @access private
+    */
+    private function &_addTextPart(&$obj, $text) : Mail_mimePart {
+
+        $params['content_type'] = 'text/plain';
+        $params['encoding']     = $this->_build_params['text_encoding'];
+        $params['charset']      = $this->_build_params['text_charset'];
+        if (is_object($obj)) {
+            return $obj->addSubpart($text, $params);
+        } else {
+            return new Mail_mimePart($text, $params);
+        }
+    }
+
+    /*
+    * Adds a html subpart to the mimePart object and
+    * returns it during the build process.
+    *
+    * @param mixed    The object to add the part to, or
+    *                 null if a new object is to be created.
+    * @return object  The html mimePart object
+    * @access private
+    */
+    private function &_addHtmlPart(&$obj){
+
+        $params['content_type'] = 'text/html';
+        $params['encoding']     = $this->_build_params['html_encoding'];
+        $params['charset']      = $this->_build_params['html_charset'];
+        if (is_object($obj)) {
+            return $obj->addSubpart($this->_htmlbody, $params);
+        } else {
+            return new Mail_mimePart($this->_htmlbody, $params);
+        }
+    }
+
+    /*
+    * Creates a new mimePart object, using multipart/mixed as
+    * the initial content-type and returns it during the
+    * build process.
+    *
+    * @return object  The multipart/mixed mimePart object
+    * @access private
+    */
+    private function &_addMixedPart(){
+
+        $params['content_type'] = 'multipart/mixed';
+        return new Mail_mimePart('', $params);
+    }
+
+    /*
+    * Adds a multipart/alternative part to a mimePart
+    * object, (or creates one), and returns it  during
+    * the build process.
+    *
+    * @param mixed    The object to add the part to, or
+    *                 null if a new object is to be created.
+    * @return object  The multipart/mixed mimePart object
+    * @access private
+    */
+    private function &_addAlternativePart(&$obj){
+
+        $params['content_type'] = 'multipart/alternative';
+        if (is_object($obj)) {
+            return $obj->addSubpart('', $params);
+        } else {
+            return new Mail_mimePart('', $params);
+        }
+    }
+
+    /*
+    * Adds a multipart/related part to a mimePart
+    * object, (or creates one), and returns it  during
+    * the build process.
+    *
+    * @param mixed    The object to add the part to, or
+    *                 null if a new object is to be created.
+    * @return object  The multipart/mixed mimePart object
+    * @access private
+    */
+    private function &_addRelatedPart(&$obj){
+
+        $params['content_type'] = 'multipart/related';
+        if (is_object($obj)) {
+            return $obj->addSubpart('', $params);
+        } else {
+            return new Mail_mimePart('', $params);
+        }
+    }
+
+    /*
+    * Adds an html image subpart to a mimePart object
+    * and returns it during the build process.
+    *
+    * @param  object  The mimePart to add the image to
+    * @param  array   The image information
+    * @return object  The image mimePart object
+    * @access private
+    */
+    private function &_addHtmlImagePart(&$obj, $value){
+
+        $params['content_type'] = $value['c_type'];
+        $params['encoding']     = 'base64';
+        $params['disposition']  = 'inline';
+        $params['dfilename']    = $value['name'];
+        $params['cid']          = $value['cid'];
+        $obj->addSubpart($value['body'], $params);
+    }
+
+    /*
+    * Adds an attachment subpart to a mimePart object
+    * and returns it during the build process.
+    *
+    * @param  object  The mimePart to add the image to
+    * @param  array   The attachment information
+    * @return object  The image mimePart object
+    * @access private
+    */
+    private function &_addAttachmentPart(&$obj, $value){
+
+        $params['content_type'] = $value['c_type'];
+        $params['encoding']     = $value['encoding'];
+        $params['disposition']  = 'attachment';
+        $params['dfilename']    = $value['name'];
+        $obj->addSubpart($value['body'], $params);
+    }
+
+
 }
-?>
